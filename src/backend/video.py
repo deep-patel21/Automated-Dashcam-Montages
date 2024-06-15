@@ -46,13 +46,13 @@ def navigate_to_folder(base_directory):
     """
 
     # Collect desired date stamp of folder
-    user_date = input("Enter the date of the desired footage from: ")
+    user_directory_selection = input("Enter the date of the desired footage from: ")
 
-    target_directory = os.path.join(base_directory, user_date)
+    target_directory = os.path.join(base_directory, user_directory_selection)
 
     # Error Handling for invalid date stamp input
     if not os.path.exists(target_directory):
-        print(f"Directory for date {user_date} does not exist.")
+        print(f"Directory for date {user_directory_selection} does not exist.")
         return None
 
     return target_directory
@@ -72,8 +72,11 @@ def retrieve_video_files(target_directory):
     video_extensions = ('.mp4', '.MP4' '.avi', '.mov')
 
     video_files = [os.path.join(target_directory, file) for file in os.listdir(target_directory) if file.endswith(video_extensions)]
+    all_files = [os.path.join(target_directory, file_generic) for file_generic in os.listdir(target_directory)]
 
-    print("Extracted the following files: " + str(video_files))
+    print("Extracted the following video files: " + str(video_files))
+
+    print("Extracted the following miscenallenous files: " + str(all_files))
 
     # # Retrieve all videos at the desired folder
     # file_list = os.listdir(target_directory)
@@ -128,9 +131,15 @@ def main():
         video_files = retrieve_video_files(target_directory)
 
         if video_files:
-            output_path = os.path.join(target_directory, "stitched_video.mp4")
-            stitch_video_clips(video_files, output_path)
-            print(f"Stitched video saved to: {output_path}")
+            user_stitch_confirmation = input("Please enter your confirmation to proceed. [y/n]")
+
+            if user_stitch_confirmation == 'y' or user_stitch_confirmation == 'Y':
+                output_path = os.path.join(target_directory, "stitched_video.mp4")
+                stitch_video_clips(video_files, output_path)
+                print(f"Stitched video saved to: {output_path}")
+            else:
+                print("Terminating program.")
+                exit()
 
 
 if __name__ == "__main__":
