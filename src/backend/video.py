@@ -47,9 +47,11 @@ def retrieve_video_files(target_directory):
         video_files         : list of all videos at the desired directory
     """
 
-    video_extensions = ('.mp4', '.avi', '.mov')
+    video_extensions = ('.mp4', '.MP4' '.avi', '.mov')
 
     video_files = [os.path.join(target_directory, file) for file in os.listdir(target_directory) if file.endswith(video_extensions)]
+
+    print("Extracted the following files: " + str(video_files))
 
     # # Retrieve all videos at the desired folder
     # file_list = os.listdir(target_directory)
@@ -58,6 +60,10 @@ def retrieve_video_files(target_directory):
     # for file in file_list:
     #     if file.endswith(video_extensions):
     #         video_files = [os.path.join(target_directory, file)]
+
+    if "stitched_video.mp4" in [os.path.basename(file) for file in video_files]:
+        print("Montage video already exists in target directory.")
+        return None
 
     if not video_files:
         print(f"No video files found in directory: {target_directory}")
