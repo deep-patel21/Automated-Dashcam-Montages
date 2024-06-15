@@ -20,6 +20,7 @@ def list_subdirectories(base_directory):
         base_directory      : reference to 'Dashcam Backup' directory
     """
 
+    # Error handling for non existent base directory
     if not os.path.exists(base_directory):
         print(f"Base directory at {base_directory} does not exist.")
         return []
@@ -69,13 +70,13 @@ def retrieve_video_files(target_directory):
         video_files         : list of all videos at the desired directory
     """
 
+    # Accepted file extensions for compilation
     video_extensions = ('.mp4', '.MP4' '.avi', '.mov')
 
-    video_files = [os.path.join(target_directory, file) for file in os.listdir(target_directory) if file.endswith(video_extensions)]
-    all_files = [os.path.join(target_directory, file_generic) for file_generic in os.listdir(target_directory)]
-
+    video_files = [os.path.join(target_directory, file) for file in os.listdir(target_directory) if file.lower().endswith(video_extensions)]
     print("Extracted the following video files: " + str(video_files))
 
+    all_files = [os.path.join(target_directory, file_generic) for file_generic in os.listdir(target_directory)]
     print("Extracted the following miscenallenous files: " + str(all_files))
 
     # # Retrieve all videos at the desired folder
@@ -86,10 +87,12 @@ def retrieve_video_files(target_directory):
     #     if file.endswith(video_extensions):
     #         video_files = [os.path.join(target_directory, file)]
 
+    # Check for pre-existing compilation in target directory. Program will not create montage if True
     if "stitched_video.mp4" in [os.path.basename(file) for file in video_files]:
         print("Montage video already exists in target directory.")
         return None
 
+    # Empty directory or directory with no acceptable file extensions
     if not video_files:
         print(f"No video files found in directory: {target_directory}")
         return None
@@ -116,12 +119,14 @@ def stitch_video_clips(video_files, output_path):
 
     compilation = moviepy.concatenate_videoclips(clips)
 
+    # Use codec='libx264' and preset='ultrafast'
     compilation.write_videofile(output_path, codec='libx264', preset='ultrafast')
 
 
 def main():
     """main()"""
 
+    # Raw string references base directory of all backup dashcam footage
     base_directory = r"d:\Dashcam Backup"
     list_subdirectories(base_directory)
 
@@ -130,11 +135,14 @@ def main():
     if target_directory:
         video_files = retrieve_video_files(target_directory)
 
+        # User confirmation
         if video_files:
             user_stitch_confirmation = input("Please enter your confirmation to proceed. [y/n]")
 
             if user_stitch_confirmation == 'y' or user_stitch_confirmation == 'Y':
+                # Stitched video will be placed in same directory as utilized video files
                 output_path = os.path.join(target_directory, "stitched_video.mp4")
+                
                 stitch_video_clips(video_files, output_path)
                 print(f"Stitched video saved to: {output_path}")
             else:
