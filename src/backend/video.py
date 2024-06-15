@@ -12,12 +12,34 @@ import os
 import moviepy.editor as moviepy
 
 
+def list_subdirectories(base_directory):
+    """
+    Print out all folders available for access in Dascham Backup directory
+
+    @params:
+        base_directory      : reference to 'Dashcam Backup' directory
+    """
+
+    if not os.path.exists(base_directory):
+        print(f"Base directory at {base_directory} does not exist.")
+        return []
+    
+    subdirectories = [directory for directory in os.listdir(base_directory) if os.path.isdir(os.path.join(base_directory, directory))]
+
+    # for directory in os.listdir(base_directory):
+    #     if os.path.isdir(os.path.join(base_directory, directory)):
+    #         subdirectories.append(directory)
+
+    print(f"Subdirectories available for selection in {base_directory}: {subdirectories}")
+          
+    return subdirectories
+
 def navigate_to_folder(base_directory):
     """
     Navigate to the directory containing backups of dashcam footage
 
     @params:
-        base_directory    : reference to 'Dashcam Backup' directory     - Required
+        base_directory    : reference to 'Dashcam Backup' directory     
 
     @returns:
         target_directory  : desired directory to pull video footage from
@@ -98,6 +120,8 @@ def main():
     """main()"""
 
     base_directory = r"d:\Dashcam Backup"
+    list_subdirectories(base_directory)
+
     target_directory = navigate_to_folder(base_directory)
 
     if target_directory:
