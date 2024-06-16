@@ -6,18 +6,19 @@ The purpose of this file is to navigate through dashcam video backup
 directories and retrieve all videos corresponding to a particular trip.
 These clips will be stitched together to send to the frontend for display.
 
-Further functionality includes video resolution scaling and compression to 
+Further functionality includes video resolution scaling and compression to
 create a more efficient automation experience.
 """
 
 # Imports
 import os
+import sys
 import moviepy.editor as moviepy
 
 
 # Constants
-BITRATE = "800k"                  # Desired bitrate in video compression and scaling functions
-SCALING_RESOLUTION = (1280, 720)  # Desired down-scaling resolution for video compressiong and scaling functions
+BITRATE = "800k"                  # Bitrate used in compression and scaling functions
+SCALING_RESOLUTION = (1280, 720)  # Downscaling resolution for compressiong and scaling functions
 
 
 def list_subdirectories(base_directory):
@@ -32,15 +33,17 @@ def list_subdirectories(base_directory):
     if not os.path.exists(base_directory):
         print(f"Base directory at {base_directory} does not exist.")
         return []
-    
-    subdirectories = [directory for directory in os.listdir(base_directory) if os.path.isdir(os.path.join(base_directory, directory))]
 
-    # for directory in os.listdir(base_directory):
-    #     if os.path.isdir(os.path.join(base_directory, directory)):
-    #         subdirectories.append(directory)
+    # subdirectories = [directory for directory in os.listdir(base_directory) if os.path.isdir(os.path.join(base_directory, directory))]
+
+    subdirectories = []
+
+    for directory in os.listdir(base_directory):
+        if os.path.isdir(os.path.join(base_directory, directory)):
+            subdirectories.append(directory)
 
     print(f"Subdirectories available for selection in {base_directory}: {subdirectories}")
-          
+
     return subdirectories
 
 
@@ -49,7 +52,7 @@ def navigate_to_folder(base_directory):
     Navigate to the directory containing backups of dashcam footage
 
     @params:
-        base_directory    : reference to 'Dashcam Backup' directory     
+        base_directory    : reference to 'Dashcam Backup' directory
 
     @returns:
         target_directory  : desired directory to pull video footage from
@@ -80,7 +83,7 @@ def retrieve_video_files(target_directory):
     """
 
     # Accepted file extensions for compilation
-    video_extensions = ('.mp4', '.MP4' '.avi', '.mov')
+    video_extensions = ('.mp4', '.MP4', '.avi', '.mov')
 
     video_files = [os.path.join(target_directory, file) for file in os.listdir(target_directory) if file.lower().endswith(video_extensions)]
     print("Extracted the following video files: " + str(video_files))
@@ -96,7 +99,7 @@ def retrieve_video_files(target_directory):
     #     if file.endswith(video_extensions):
     #         video_files = [os.path.join(target_directory, file)]
 
-    # Check for pre-existing compilation in target directory. Program will not create montage if True
+    # Check for pre-existing compilation in target directory.
     if "stitched_video.mp4" in [os.path.basename(file) for file in video_files]:
         print("Montage video already exists in target directory.")
         return None
@@ -115,17 +118,17 @@ def compress_and_scale_video(input_path, output_path):
 
     @params:
         input_path      :  path to the original video file
-        output_path     :  path to save the compressed and scaled video 
+        output_path     :  path to save the compressed and scaled video
 
     @returns:
-        NONE    
+        NONE
     """
 
     clip = moviepy.VideoFileClip(input_path)
     clip_resized = clip.resize(newsize=SCALING_RESOLUTION)
 
     clip_resized.write_videofile(output_path, codec='libx264', bitrate=BITRATE, preset='fast')
-    
+
 
 def compress_and_scale_wrapper(video_files):
     """
@@ -135,7 +138,7 @@ def compress_and_scale_wrapper(video_files):
         video_files         : list of all files found at target date stamped directory
 
     @returns:
-        compressed_files    : list of paths to the compressed video files   
+        compressed_files    : list of paths to the compressed video files
     """
 
     compressed_files = []
@@ -196,13 +199,13 @@ def main():
 
                 # Stitched video will be placed in same directory as utilized video files
                 output_path = os.path.join(target_directory, "stitched_video.mp4")
-                
+
                 # Stitch all compressed files
                 stitch_video_clips(compressed_files, output_path)
                 print(f"Stitched video saved to: {output_path}")
             else:
                 print("Terminating program.")
-                exit()
+                sys.exit()
 
 
 if __name__ == "__main__":
