@@ -18,6 +18,14 @@ Automation project to simplify the process of creating road trip timelapse monta
 1. **Speed Adjustment:** Adds a field to manipulate video speed. Will later be changed to button presets.
 2. **Account Management:** Allows users to create and manage a personal library of their road trip timelapses. (Coming soon...)
 
+### Screenshot Library
+## Script in progress
+![dashcam script pic](https://github.com/deep-patel21/Automated-Dashcam-Montages/assets/103757105/092dfb5b-23a6-459b-9e94-fe33114f12dc)
+
+## Basic HTML Page Output
+
+
+
 ## Upcoming Improvements 
 - **Error Handling:** Adding additional error handling to manage unexpected situations.
 - **Graphical User Interface:** Creating a webpage for users to utilize functionality by uploading their own video clips.
