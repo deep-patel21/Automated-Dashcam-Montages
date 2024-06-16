@@ -5,11 +5,19 @@
 The purpose of this file is to navigate through dashcam video backup
 directories and retrieve all videos corresponding to a particular trip.
 These clips will be stitched together to send to the frontend for display.
+
+Further functionality includes video resolution scaling and compression to 
+create a more efficient automation experience.
 """
 
 # Imports
 import os
 import moviepy.editor as moviepy
+
+
+# Constants
+BITRATE = "800k"                  # Desired bitrate in video compression and scaling functions
+SCALING_RESOLUTION = (1280, 720)  # Desired down-scaling resolution for video compressiong and scaling functions
 
 
 def list_subdirectories(base_directory):
@@ -34,6 +42,7 @@ def list_subdirectories(base_directory):
     print(f"Subdirectories available for selection in {base_directory}: {subdirectories}")
           
     return subdirectories
+
 
 def navigate_to_folder(base_directory):
     """
@@ -100,6 +109,48 @@ def retrieve_video_files(target_directory):
     return sorted(video_files)
 
 
+def compress_and_scale_video(input_path, output_path):
+    """
+    Performs scaling and compression of individual video file for greater script efficiency
+
+    @params:
+        input_path      :  path to the original video file
+        output_path     :  path to save the compressed and scaled video 
+
+    @returns:
+        NONE    
+    """
+
+    clip = moviepy.VideoFileClip(input_path)
+    clip_resized = clip.resize(newsize=SCALING_RESOLUTION)
+
+    clip_resized.write_videofile(output_path, codec='libx264', bitrate=BITRATE, preset='fast')
+    
+
+def compress_and_scale_wrapper(video_files):
+    """
+    Handler to manage scaling and compression of all retreived video files in extracted list
+
+    @params:
+        video_files         : list of all files found at target date stamped directory
+
+    @returns:
+        compressed_files    : list of paths to the compressed video files   
+    """
+
+    compressed_files = []
+
+    for video in video_files:
+        input_path = video
+        output_path = os.path.splitext(video)[0] + "_compressed.mp4"
+
+        # Send indivual files to subfunction that performs scaling and compression
+        compress_and_scale_video(input_path, output_path)
+        compressed_files.append(output_path)
+
+    return compressed_files
+
+
 def stitch_video_clips(video_files, output_path):
     """
     Write a single video file as a compilation of all extracted video files
@@ -139,11 +190,15 @@ def main():
         if video_files:
             user_stitch_confirmation = input("Please enter your confirmation to proceed. [y/n]")
 
-            if user_stitch_confirmation == 'y' or user_stitch_confirmation == 'Y':
+            if user_stitch_confirmation.lower() == 'y':
+                # Initiate scaling and compression procedure for all relevant video files
+                compressed_files = compress_and_scale_wrapper(video_files)
+
                 # Stitched video will be placed in same directory as utilized video files
                 output_path = os.path.join(target_directory, "stitched_video.mp4")
                 
-                stitch_video_clips(video_files, output_path)
+                # Stitch all compressed files
+                stitch_video_clips(compressed_files, output_path)
                 print(f"Stitched video saved to: {output_path}")
             else:
                 print("Terminating program.")
